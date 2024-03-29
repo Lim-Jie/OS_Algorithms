@@ -1,0 +1,193 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+class Main1 {
+
+    public static void main(String[] args) {
+        SJN sjn = new SJN();
+    }
+}
+
+class SJN {
+    double serviceTime;
+    double arrivalTime;
+    double averageTurnAround;
+
+    ArrayList<ArrayList<Double>> Current = new ArrayList<>();
+    ArrayList<ArrayList<Double>> Ascending = new ArrayList<>();
+    ArrayList<ArrayList<Double>> Descending = new ArrayList<>();
+    ArrayList<Double> TurnAroundTimes = new ArrayList<>();
+    ArrayList<ArrayList<Double>> WaitingTime = new ArrayList<>();
+
+    public SJN() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Number of jobs: ");
+        int iteration = sc.nextInt();
+        int job = 1;
+        while (iteration > 0) {
+
+            System.out.print("Job " + job + " Arrival Time: ");
+            arrivalTime = sc.nextDouble();
+            System.out.print("Job " + job + " Service Time: ");
+            serviceTime = sc.nextDouble();
+
+            ArrayList<Double> obj = new ArrayList<>();
+            obj.add(arrivalTime);
+            obj.add(serviceTime);
+            Current.add(obj);
+
+            iteration--;
+            job++;
+        }
+
+        Ascending = deepCopy(Current);
+        Descending = deepCopy(Current);
+        //SIMULATES BEST CASE SJN, THEN CLEARS THE ARRAYLIST OF OBJECTS
+        simulateBestCaseSJN();
+        DisplayTurnAroundWaitingTimes();
+
+        //FILLS ARRAYLIST OF TURN AROUND TIME WITH WORST CASE THEN CLEARS AGAIN
+        simulateWorstCaseSJN();
+        DisplayTurnAroundWaitingTimes();
+
+        simulateCurrentCaseSJN();
+        DisplayTurnAroundWaitingTimes();
+
+    }
+
+    private void simulateSJN(ArrayList<ArrayList<Double>> Now) {
+        double currentTime = 0;
+        while (!Now.isEmpty()) {
+            ArrayList<Double> shortestJob = findShortestJob(currentTime, Now);
+            if (shortestJob == null) {
+                currentTime++;
+                continue;
+            }
+
+            double arrival = shortestJob.get(0);
+            double service = shortestJob.get(1);
+
+            if (arrival > currentTime) {
+                currentTime = arrival;
+            }
+
+            double completionTime = currentTime + service;
+            ArrayList<Double> turnaroundObj = new ArrayList<>();
+            TurnAroundTimes.add(completionTime - arrival);
+
+
+            ArrayList<Double> waitingObj = new ArrayList<>();
+            waitingObj.add(completionTime - arrival - service);
+            WaitingTime.add(waitingObj);
+
+            currentTime = completionTime;
+            Now.remove(shortestJob);
+        }
+
+        // Output results
+
+    }
+
+
+    public void SortAscending(ArrayList<ArrayList<Double>> arr, int columnIndex) {
+        ArrayList<Double> columnValues = new ArrayList<>();
+        for (ArrayList<Double> innerList : arr) {
+            columnValues.add(innerList.get(columnIndex));
+        }
+        Collections.sort(columnValues);
+        for (int i = 0; i < arr.size(); i++) {
+            arr.get(i).set(columnIndex, columnValues.get(i));
+        }
+    }
+
+    private ArrayList<Double> findShortestJob(double currentTime, ArrayList<ArrayList<Double>> Now) {
+        ArrayList<Double> shortestJob = null;
+        double shortestService = Double.MAX_VALUE;
+        for (ArrayList<Double> job : Now) {
+            double arrival = job.get(0);
+            double service = job.get(1);
+            if (arrival <= currentTime && service < shortestService) {
+                shortestService = service;
+                shortestJob = job;
+            }
+        }
+        return shortestJob;
+    }
+
+    public void simulateBestCaseSJN() {
+        System.out.println("____________________________________________________________");
+        System.out.println("Best Case Scenario");
+        // Sort the jobs based on service time (ascending order)
+        SortAscending(Ascending, 1);
+        simulateSJN(Ascending);
+    }
+
+    public void simulateCurrentCaseSJN() {
+        System.out.println("\n____________________________________________________________");
+        System.out.println("Current Case Scenario");
+        // Sort the jobs based on service time (ascending order)
+        simulateSJN(Current);
+    }
+
+    public void simulateWorstCaseSJN() {
+        System.out.println("\n____________________________________________________________");
+        System.out.println("\nWorst Case Scenario");
+        // Sort the jobs based on service time (descending order)
+        SortDescending(Descending, 1);
+        simulateSJN(Descending);
+    }
+
+    public void SortDescending(ArrayList<ArrayList<Double>> arr, int columnIndex) {
+        ArrayList<Double> columnValues = new ArrayList<>();
+        for (ArrayList<Double> innerList : arr) {
+            columnValues.add(innerList.get(columnIndex));
+        }
+        Collections.sort(columnValues, Collections.reverseOrder());
+        for (int i = 0; i < arr.size(); i++) {
+            arr.get(i).set(columnIndex, columnValues.get(i));
+        }
+    }
+
+    public ArrayList<ArrayList<Double>> deepCopy(ArrayList<ArrayList<Double>> original) {
+        ArrayList<ArrayList<Double>> copy = new ArrayList<>();
+        for (ArrayList<Double> innerList : original) {
+            ArrayList<Double> innerCopy = new ArrayList<>(innerList);
+            copy.add(innerCopy);
+        }
+        return copy;
+    }
+
+    public void DisplayTurnAroundWaitingTimes(){
+        System.out.print("Turnaround times: ");
+        for (int i=0;i<TurnAroundTimes.size(); i++ ) {
+            System.out.print(TurnAroundTimes.get(i));
+
+            if(i!=TurnAroundTimes.size()-1){
+                System.out.print(" , ");
+            }
+        }
+        System.out.println("\nAverage Turn Around Time: "+ CalculateAverageTurnAroundTime());
+
+        System.out.print("Waiting times: ");
+        for (int i=0;i<WaitingTime.size(); i++ ) {
+            ArrayList<Double> waitingObj = WaitingTime.get(i);
+            System.out.print(waitingObj.get(0));
+
+            if(i!=WaitingTime.size()-1){
+                System.out.print(" , ");
+            }
+        }
+        TurnAroundTimes.clear();
+        WaitingTime.clear();
+    }
+
+    public double CalculateAverageTurnAroundTime(){
+        double sum=0;
+        for(double values: TurnAroundTimes){
+            sum += values;
+        }
+
+        return sum/TurnAroundTimes.size();
+    }
+}
