@@ -1,0 +1,147 @@
+import java.util.*;
+
+class Main {
+
+    public static void main(String[] args) {
+        FCFS a = new FCFS();
+    }
+}
+class FCFS{
+    double serviceTime;
+    double arrivalTime;
+
+    ArrayList<ArrayList<Double>> Current = new ArrayList<>();
+    ArrayList<ArrayList<Double>> Ascending = new ArrayList<>();
+    ArrayList<ArrayList<Double>> Descending = new ArrayList<>();
+    ArrayList<ArrayList<Double>> TurnAroundTimes = new ArrayList<>();
+    ArrayList<ArrayList<Double>> WaitingTime = new ArrayList<>();
+
+
+
+
+    public FCFS(){
+        Scanner sc= new Scanner(System.in);
+        System.out.print("Number of jobs: ");
+        int iteration = sc.nextInt();
+        int job=1;
+        while(iteration>0){
+
+            System.out.print("Job "+job+ " Arrival Time: ");
+            arrivalTime= sc.nextDouble();
+            System.out.print("Job "+job+ " Service Time: ");
+            serviceTime= sc.nextDouble();
+
+            ArrayList <Double > obj = new ArrayList<>();
+            obj.add(arrivalTime);
+            obj.add(serviceTime);
+            Current.add(obj);
+
+            iteration--;
+            job++;
+        }
+        Sorting();
+        System.out.println("\n\n"+"Best Average Turn Around time: "+ CalculateAverageTurnAroundTimes(Ascending));
+        System.out.print("Turn Around Times: ");
+        DisplayTurnAroundTimes(0);
+        System.out.print("Waiting Times: ");
+        DisplayWaitingTimes(0);
+        System.out.println("");
+
+        System.out.println("Worst Average Turn Around time: "+ CalculateAverageTurnAroundTimes(Descending));
+        System.out.print("Turn Around Times: ");
+        DisplayTurnAroundTimes(1);
+        System.out.print("Waiting Times: ");
+        DisplayWaitingTimes(1);
+
+        System.out.println("");
+
+        System.out.println("Current Average Turn Around time: "+ CalculateAverageTurnAroundTimes(Current));
+        System.out.print("Turn Around Times: ");
+        DisplayTurnAroundTimes(2);
+        System.out.print("Waiting Times: ");
+        DisplayWaitingTimes(2);
+
+        System.out.println("\n"+"+++++++++++++");
+        DisplaySorts();
+
+    }
+
+    public void Sorting() {
+        Ascending =  deepCopy(Current);
+        Descending = deepCopy(Current);
+        SortAscending(Ascending,0);
+        SortAscending(Ascending,1);
+        SortDescending(Descending,1);
+    }
+
+
+
+    //Sorts based on Column index
+    public void SortAscending(ArrayList<ArrayList<Double>> arr, int columnIndex) {
+        ArrayList<Double> columnValues = new ArrayList<>();
+        for (ArrayList<Double> innerList : arr) {
+            columnValues.add(innerList.get(columnIndex));
+        }
+        Collections.sort(columnValues);
+        for (int i = 0; i < arr.size(); i++) {
+            arr.get(i).set(columnIndex, columnValues.get(i));
+        }
+    }
+    public void SortDescending(ArrayList<ArrayList<Double>> arr, int columnIndex) {
+        ArrayList<Double> columnValues = new ArrayList<>();
+        for (ArrayList<Double> innerList : arr) {
+            columnValues.add(innerList.get(columnIndex));
+        }
+        Collections.sort(columnValues, Collections.reverseOrder());
+        for (int i = 0; i < arr.size(); i++) {
+            arr.get(i).set(columnIndex, columnValues.get(i));
+        }
+    }
+
+
+
+
+
+    public double CalculateAverageTurnAroundTimes(ArrayList<ArrayList<Double>> arrayList){
+            double Sum=0;
+            double cumulative=0;
+            ArrayList<Double> CurrentTurnAroundValues = new ArrayList<>();
+            ArrayList<Double> CurrentWaitingTimes = new ArrayList<>();
+
+
+        for(int i=0; i<Current.size(); i++){
+                double currentArrivalTime= arrayList.get(i).get(0);
+                double currentSchedulingTime= arrayList.get(i).get(1);
+                cumulative+= currentSchedulingTime;
+                Sum+= (cumulative-currentArrivalTime);
+                CurrentTurnAroundValues.add(cumulative-currentArrivalTime);
+                CurrentWaitingTimes.add(cumulative);
+            }
+            TurnAroundTimes.add(CurrentTurnAroundValues);
+            WaitingTime.add(CurrentWaitingTimes);
+            Double NumberOfItems= (double)Current.size();
+
+        return Sum/NumberOfItems;
+    }
+
+    public void DisplayTurnAroundTimes(int index){
+        System.out.println(TurnAroundTimes.get(index));
+    }
+    public void DisplayWaitingTimes(int index){
+        System.out.println(WaitingTime.get(index));
+    }
+
+    public void DisplaySorts(){
+        System.out.println("Best sorted: " + Ascending);
+        System.out.println("Worst sorted: " +Descending);
+    }
+    public ArrayList<ArrayList<Double>> deepCopy(ArrayList<ArrayList<Double>> original) {
+        ArrayList<ArrayList<Double>> copy = new ArrayList<>();
+        for (ArrayList<Double> innerList : original) {
+            ArrayList<Double> innerCopy = new ArrayList<>(innerList);
+            copy.add(innerCopy);
+        }
+        return copy;
+    }
+
+}
