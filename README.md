@@ -1,9 +1,9 @@
 # OPERATING SYSTEM ALGORITHMS (JAVA) 
 
 ## Inside each of these files are Java code to simulate Job operation. 
-Users are required to input 
-i. Arrival Time (of each job)
-ii. Service Time (of each job) 
+### Users are required to input 
+### i. Arrival Time (of each job)
+### ii. Service Time (of each job) 
 
 ## Results will be categorized in 3 manners
 i. Best case scenario (sorted in manner for fastest execution)
