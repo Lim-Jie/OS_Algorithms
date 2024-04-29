@@ -1,0 +1,80 @@
+
+import java.util.*;
+
+class Main1 {
+
+    static ArrayList<Integer> Jobs = new ArrayList<>();
+    static ArrayList<Integer> MemoryBlocks = new ArrayList<>(Arrays.asList(30, 15, 50, 20));
+    static Map <Integer, Integer> map = new HashMap();
+
+    public static void main(String[] args) {
+        DisplayAndClearCurrentList();
+        DisplayMemoryBlockConfig();
+         Scanner sc = new Scanner(System.in);
+         System.out.println("_______________________________________________");
+         System.out.print("Number of jobs: ");
+         int numberOfJobs = sc.nextInt();
+         int count=1;
+
+         while(numberOfJobs>0){
+             System.out.print("Job "+count+" size : ");
+             int job= sc.nextInt();
+             Jobs.add(job);
+             numberOfJobs--;
+             count++;
+         }
+
+        Operation();
+        DisplayResults();
+
+     }
+
+    static void Operation() {
+        for (int i = 0; i < Jobs.size(); i++) {
+            int JobInt = Jobs.get(i);
+            boolean allocated = false; // Flag to track whether job has been allocated
+
+            for (int j = 0; j < MemoryBlocks.size(); j++) {
+                int MemoryInt = MemoryBlocks.get(j);
+                if (JobInt <= MemoryInt) {
+                    MemoryBlocks.remove(j); // Remove the memory block from the list
+                    map.put(MemoryInt, JobInt); // Map the memory block to the job
+                    allocated = true; // Set the allocated flag to true
+                    break; // Break out of the inner loop
+                }
+            }
+
+            // If job couldn't be allocated, display a message
+            if (!allocated) {
+                System.out.println("Job " + JobInt + " could not be allocated.");
+            }
+        }
+    }
+
+
+     static void DisplayResults(){
+
+         for (Map.Entry<Integer, Integer> mapValue : map.entrySet()) {
+             System.out.println("Memory block size: "+ mapValue.getKey()+ "" +
+                     " allocated to job size : "+ mapValue.getValue());
+         }
+     }
+
+     static void DisplayMemoryBlockConfig(){
+         System.out.println("Memory block size : ");
+         System.out.println("_______________________________________________");
+         int count=1;
+         for(int values: MemoryBlocks){
+            System.out.println("Processor J"+count+" size : "+values);
+            count++;
+        }
+     }
+     static void DisplayAndClearCurrentList(){
+         System.out.println(Jobs);
+         System.out.println(MemoryBlocks);
+         Jobs.clear();
+     }
+
+}
+
+
